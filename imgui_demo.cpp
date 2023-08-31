@@ -3179,7 +3179,6 @@ static void ShowDemoWindowMultiSelect()
             static bool use_clipper = true;
             static bool use_deletion = true;
             static bool use_drag_drop = true;
-            static bool show_in_table = false;
             static bool show_color_button = false;
             static ImGuiMultiSelectFlags flags = ImGuiMultiSelectFlags_None;
             static WidgetType widget_type = WidgetType_Selectable;
@@ -3190,7 +3189,6 @@ static void ShowDemoWindowMultiSelect()
             ImGui::Checkbox("Enable clipper", &use_clipper);
             ImGui::Checkbox("Enable deletion", &use_deletion);
             ImGui::Checkbox("Enable drag & drop", &use_drag_drop);
-            ImGui::Checkbox("Show in a table", &show_in_table);
             ImGui::Checkbox("Show color button", &show_color_button);
             ImGui::CheckboxFlags("ImGuiMultiSelectFlags_SingleSelect", &flags, ImGuiMultiSelectFlags_SingleSelect);
             ImGui::CheckboxFlags("ImGuiMultiSelectFlags_NoSelectAll", &flags, ImGuiMultiSelectFlags_NoSelectAll);
@@ -3226,16 +3224,6 @@ static void ShowDemoWindowMultiSelect()
                 if (want_delete)
                     item_curr_idx_to_focus = selection.ApplyDeletionPreLoop(ms_io, &selection_adapter, items);
 
-                if (show_in_table)
-                {
-                    if (widget_type == WidgetType_TreeNode)
-                        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
-                    ImGui::BeginTable("##Split", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoPadOuterX);
-                    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 0.70f);
-                    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch, 0.30f);
-                    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0.0f));
-                }
-
                 ImGuiListClipper clipper;
                 if (use_clipper)
                 {
@@ -3252,9 +3240,6 @@ static void ShowDemoWindowMultiSelect()
                     const int item_end = use_clipper ? clipper.DisplayEnd : items.Size;
                     for (int n = item_begin; n < item_end; n++)
                     {
-                        if (show_in_table)
-                            ImGui::TableNextColumn();
-
                         const int item_id = items[n];
                         const char* item_category = ExampleNames[item_id % IM_ARRAYSIZE(ExampleNames)];
                         char label[64];
@@ -3337,27 +3322,10 @@ static void ShowDemoWindowMultiSelect()
                             ImGui::EndPopup();
                         }
 
-                        // Demo content within a table
-                        if (show_in_table)
-                        {
-                            ImGui::TableNextColumn();
-                            ImGui::SetNextItemWidth(-FLT_MIN);
-                            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-                            ImGui::InputText("###NoLabel", (char*)(void*)item_category, strlen(item_category), ImGuiInputTextFlags_ReadOnly);
-                            ImGui::PopStyleVar();
-                        }
-
                         ImGui::PopID();
                     }
                     if (!use_clipper)
                         break;
-                }
-
-                if (show_in_table)
-                {
-                    ImGui::EndTable();
-                    if (widget_type == WidgetType_TreeNode)
-                        ImGui::PopStyleVar();
                 }
 
                 // Apply multi-select requests
